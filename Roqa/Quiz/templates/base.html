@@ -1,0 +1,348 @@
+{% load static %}
+<html>
+	<head>
+		<title>Create Quiz</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://pro.fontawesome.com/releases/v5.13.0/css/all.css"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Sansita+Swashed&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Overpass:wght@600&display=swap"
+			rel="stylesheet"
+		/>
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+		<style>
+			label {
+				color: white !important;
+			}
+
+			body {
+				overflow-x: hidden;
+			}
+			#all {
+				position: absolute;
+				margin: 0;
+				top: 35%;
+				left: 50%;
+				height: 100px;
+				width: 50%;
+				transform: translate(-50%, -50%);
+			}
+			.btn {
+				background-color: #4caf50;
+				border: none;
+				color: white;
+				padding: 15px 32px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 16px;
+				margin: 4px 2px;
+				cursor: pointer;
+				border-radius: 30px;
+				margin-bottom: 10px;
+				margin: auto;
+			}
+			h1 {
+				text-align: center;
+				color: snow;
+				font-family: "Cinzel", serif;
+			}
+			.btn-container {
+				text-align: center;
+			}
+			.navbar-nav {
+				margin-left: auto;
+			}
+			.footer-text {
+				width: 100%;
+				color: white;
+				font-size: 2em;
+				font-weight: bold;
+				font-family: "Sansita Swashed", cursive;
+			}
+			.icon-list {
+				text-decoration: none;
+			}
+			.fa {
+				padding: 20px;
+				font-size: 30px;
+				width: 50px;
+				text-align: center;
+				text-decoration: none;
+				margin: 5px 2px;
+				margin-left: auto;
+				margin-right: auto;
+			}
+			.fa:hover {
+				color: white;
+				text-decoration: none;
+			}
+
+			.fa-linkedin {
+				color: white;
+			}
+
+			.fa-instagram {
+				color: white;
+			}
+			.fa-github {
+				color: white;
+			}
+			.margin {
+				margin: 0%;
+				padding-top: 10%;
+			}
+			.features-list{
+				list-style: none;
+			}
+			.features-list li::before{
+				content: "\00BB";
+				margin-right: 20px;
+				color:#ffb114;
+			}
+			@media only screen and (max-width: 600px) {
+			
+				.page-image{
+					display: none;
+				}
+				.page-content{
+					width: 100% !important;
+					height: 65vh !important;
+					margin: 0;
+					padding: 0;
+					box-shadow:  3px 3px 10px 5px rgba(158, 158, 158, 0.466) !important;
+				}
+				.features-list{
+					margin-left: 10px !important;
+				}
+				.about-col{
+					margin: 0px !important;
+				}
+				.about-image-col{
+					margin: 0px !important;
+					box-shadow: none !important;
+				}
+			}
+			ul {
+				list-style-type: none !important;
+			}
+		</style>
+
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+				box-sizing: border-box;
+			}
+			.page-main {
+				display: flex;
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+					Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+			}
+
+			.page-content,
+			.page-image {
+				width: 50%;
+				border-radius: 20px;
+			}
+			.page-content {
+				margin: 20px;
+				margin-left: 30px;
+				box-shadow: inset 0px 0px 15px 5px rgba(226, 226, 226, 0.466);
+			}
+
+			.create-test,
+			.take-test {
+				width: 120px;
+				height: 50px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				box-shadow: 5px 2px 13px 4px rgba(128, 128, 128, 0.233);
+				border-radius: 13px;
+				transition: all 0.2s ease-in;
+			}
+			.create-test {
+				background: linear-gradient(45deg, #ffc551, rgb(255, 255, 0)) !important;
+			}
+			.create-test a{
+				color:black !important;
+				text-decoration: none !important;
+			}
+			.take-test {
+				background: linear-gradient(45deg, #7085ff, rgb(2, 0, 138));
+			}
+			.take-test a{
+				text-decoration: none !important; 
+				color: white !important;
+			}
+			.create-test:hover,
+			.take-test:hover {
+				transform: scale(1.07);
+				cursor: pointer;
+			}
+			.content-divider {
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-evenly;
+				align-items: center;
+			}
+			.content-text {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				font-family: "Overpass", sans-serif;
+			}
+			.content-text-span {
+				font-size: 120px;
+				color: #475edf;
+			}
+			.content-buttons {
+				display: flex;
+				width: 100%;
+				justify-content: space-evenly;
+				align-items: center;
+			}
+			/* ABOUT SECTION */
+			.about-section {
+				height: 100vh;
+				display: flex;
+				justify-content: space-evenly;
+				align-items: center;
+			}
+
+			/* ENGAGE SECTION */
+			.engage-section {
+				margin-top: 150px;
+				margin-bottom: 120px;
+			}
+			.engage-row {
+				margin-top: 100px;
+			}
+			.engage-col {
+				height: 200px;
+				box-shadow: 5px 2px 13px 4px rgba(128, 128, 128, 0.233);
+				margin: 15px;
+				display: flex;
+				flex-direction: column;
+				border-radius: 10px;
+				justify-content: space-evenly;
+				align-items: center;
+				transition: all 0.2s ease;
+				color: #475edf;
+				cursor: pointer;
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+					Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+			}
+			.engage-col:hover {
+				transform: scale(1.07);
+			}
+
+			/* ABOUT SECTION */
+			.about-section{
+				margin-top: 150px; 
+				margin: 20px;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+				box-shadow: 0px 0px 5px 5px rgb(212, 212, 212);
+				border-radius: 20px;
+			}
+			footer{
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+			}
+			.footer-heading{
+				color: #f6b32e;
+			}
+			footer a{
+				color: #2c46d8;
+			}
+		</style>
+	</head>
+	{% include "navbar.html"%}
+	<body>
+		<div class="page-main">
+			<div class="page-content">
+				<div class="content-divider">
+					<div class="content-text" style="font-family: 'Cinzel', serif;">
+						<h3 style="color: #f6b32e">CONDUCT A</h3>
+						<span class="content-text-span">TEST</span>
+						<h3 style="color: #f6b32e">NOW</h3>
+					</div>
+					<div class="content-buttons">
+						<div class="create-test">
+							<h6><a href="/create/">Create Test</a></h6>
+						</div>
+						<div class="take-test">
+							<h6><a href="/give-quiz/">Take Test</a></h6>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="page-image">
+				<img src="{%static "images/base-image.svg" %}" alt="quiz image">
+			</div>
+		</div>
+		
+
+		<footer style="background-color: #f3f5ff;" class="page-footer font-small pt-4" style="border-radius: 30px !important;">
+			<!-- Footer Text -->
+			<div class="container-fluid text-center text-md-left">
+				<!-- Grid row -->
+				<div class="row">
+					<!-- Grid column -->
+					<div class="col-md-3 mx-auto">
+						<!-- Content -->
+						<div class="quizoo-logo" style="display: flex; justify-content: center;align-items: center; height: 100%;">
+							<h1 style="color: #475edf;"><span style="color: #f6b32e;">R</span>OQA</h1>
+						</div>
+					</div>
+					<!-- Grid column -->
+
+					<hr class="clearfix w-100 d-md-none pb-3" />
+
+					<!-- Grid column -->
+					<div class="col-md-3 mx-auto">
+						<!-- Content -->
+						<h5 class="text-uppercase font-weight-bold footer-heading">LEARN MORE</h5>
+						<ul class="list-unstyled">
+							<li>
+								<a href="#!">Content</a>
+							</li>
+							<li>
+								<a href="#!">FAQ</a>
+							</li>
+							<li>
+								<a href="#!">Terms & Conditions</a>
+							</li>
+							<li>
+								<a href="#!">Privacy Settings</a>
+							</li>
+						</ul>
+					</div>
+					
+				</div>
+			</div>
+			
+		</footer>
+	</body>
+	<html>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+	</html>
+</html>

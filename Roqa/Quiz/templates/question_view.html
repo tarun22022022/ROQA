@@ -1,0 +1,371 @@
+{% load static %}
+<html>
+	<head>
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+			integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+			crossorigin="anonymous"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://pro.fontawesome.com/releases/v5.13.0/css/all.css"
+		/>
+
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+		<script src="{% static 'js/face-api.min.js'%}" defer></script>
+		<style>
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+					Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+				background-color: rgb(250, 250, 250);
+			}
+			.question-text {
+				font-size: 20px;
+			}
+			.option-text {
+				display: inline;
+				font-size: 15px;
+			}
+			.option-text p {
+				font-size: 16px;
+				background: linear-gradient(45deg, #e6e6e6, rgb(255, 255, 255));
+				padding: 8px;
+				border-radius: 5px;
+				display: inline;
+				margin-left: 10px;
+			}
+			.background-image {
+				position: fixed;
+				left: 0;
+				right: 0;
+				width: 100%;
+				height: 100%;
+				z-index: -1;
+			}
+			.all-questions {
+				width: 80%;
+				margin: auto;
+				text-align: center;
+				box-shadow: 0px 0px 15px 9px rgb(228, 228, 228);
+				padding-top: 5px;
+				margin-top: 40px;
+				border-radius: 10px;
+			}
+			#timer {
+				margin: 40px 0;
+				font-size: 40px;
+				font-weight: bold;
+				text-align: center;
+			}
+			#all_options {
+				display: flex !important;
+				flex-wrap: wrap;
+				justify-content: space-evenly;
+				padding-bottom: 50px !important;
+				padding-top: 50px;
+			}
+			input > .check_box {
+				display: inline !important;
+			}
+			#whole {
+				display: flex;
+				flex-wrap: wrap;
+				flex-direction: column;
+				justify-content: center;
+			}
+			.next-button {
+				width: 150px;
+				border-radius: 8px;
+				margin: auto !important;
+				outline: 0;
+				border: 0;
+				padding: 5px;
+				background: linear-gradient(45deg, rgb(0, 255, 76), rgb(0, 219, 117));
+				transition: all 0.2s ease;
+			}
+			.next-button:hover {
+				transform: scale(1.08);
+			}
+		</style>
+	</head>
+	<body>
+		<div id="timer">
+			<p id="demo"></p>
+		</div>
+		<div id="whole">
+			<div class="background-image"></div>
+			<div class="all-questions">
+				<h6
+					style="
+						margin-bottom: 30px;
+						background-color: #475edf;
+						text-align: center;
+						color: #475edf;
+					"
+				>
+					:
+				</h6>
+				{% csrf_token %}
+				<span id="question_text"><h5>{{question_text|safe}}</h5></span>
+
+				<div id="all_options">
+					{% for x in options%}
+					<div class="option">
+						<input type="checkbox" class="check_box" />
+						<h3 class="option-text" id="{{x.id}}">{{x.option|safe}}</h3>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+			<div id="timer"></div>
+			<button
+				class="next-button"
+				onclick="get_next_question()"
+				style="font-size: 20px"
+			>
+				NEXT<i
+					class="fas fa-angle-double-right"
+					style="margin-left: 10px; color: rgb(0, 0, 0)"
+				></i>
+			</button>
+		</div>
+		<video id="video" width="600" height="400"  style="display:none" autoplay></video>
+	</body>
+</html>
+<script>
+var mode="{{quiz.strict_mode}}";
+if(mode=="True")
+{
+    //Turn off right click
+document.addEventListener('contextmenu', event => event.preventDefault());
+window.onblur = function() {
+setTimeout(function()
+  {
+    var target = document.activeElement;
+    if(target.outerHTML!='<button type="button" class="swal2-confirm swal2-styled" aria-label="" style="display: inline-block;">OK</button>')
+    {
+    console.log(target.outerHTML)
+    console.log('<button type="button" class="swal2-confirm swal2-styled" aria-label="" style="display: inline-block;">OK</button>')
+    console.log("You are caught doing tab changes quiz epired");
+    $.ajax({
+    type:'POST',
+    url:"/regular-checks/",
+    data:{
+        csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+		"type":"tabChange",
+		"id":"{{quiz.id}}"
+    },
+    success:function(res){
+    location.reload();
+        }
+    });
+    }
+  }, 1);
+};
+}
+window.onpaint=checkForCamera();
+
+function checkForCamera(){
+var cam="{{quiz.camera_mode}}";
+if(cam=="True")
+{
+    dowork();
+}
+}
+function dowork(){
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+   console.log('getUserMedia supported.');
+   navigator.mediaDevices.getUserMedia (
+      {
+         video:true,
+      })
+      .then(function(stream) {
+		  console.log("Coming to videoPocctoring")
+          videoPoctoring();
+      })
+      .catch(function(err) {
+         Swal.fire("Provide camera and audio permissions or test will not start").then(
+             function(){
+            navigator.mediaDevices.getUserMedia (
+            {
+                video:true
+            })
+            .then(function(stream) {
+				console.log("Coming to video poctoring")
+              videoPoctoring();
+                
+            })
+            .catch(function(err){
+             window.close();
+            })
+            }
+         );
+      }
+   );
+} else {
+    Swal.fire("Try out with device having camera and microphone").then(function(){
+        window.close();
+    })
+}
+}
+var countDownDate = "{{end_time}}"*1000//To get international standard time
+  console.log(countDownDate)
+var x = setInterval(function() {
+  var now = new Date().getTime();
+  var distance = countDownDate - now;
+  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  document.getElementById("demo").innerHTML = days + "d " + hours + "h "
+  + minutes + "m " + seconds + "s ";
+  if (distance < 0) {
+    clearInterval(x);
+    location.reload();
+  }
+}, 1000);
+function get_next_question(){
+var x=document.getElementsByClassName("option")
+li=[]
+for(let i=0;i<x.length;i++)
+{
+    //console.log(x[i].getElementsByClassName("check_box")[0])
+    if(x[i].getElementsByClassName("check_box")[0].checked==true)
+    {
+        console.log(x[i])
+        li.push(x[i].getElementsByTagName("h3")[0].id)
+    }
+}
+//Send this question reponse to the server
+$.ajax({
+    type:'POST',
+    url:"",
+    data:{
+        csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+        "response":li
+    },
+    success:function(res){
+        if(res=="500")
+            location.reload();
+        else
+        {
+        console.log("Data Successfully posted")
+        console.log(res)
+        document.getElementById("question_text").getElementsByTagName("h5")[0].innerHTML=res['question'];
+        var z=document.getElementById("all_options");
+        z.innerHTML="";
+        for(let i=0;i<res['options'].length;i++)
+        {
+            let d=document.createElement("div");
+            d.className='option';
+            let opt=document.createElement("h3");
+            opt.className="option-text";
+            let ch=document.createElement("input");
+            ch.type="checkbox";
+            ch.className="check_box";
+            d.appendChild(opt);
+            d.appendChild(ch);
+            z.appendChild(d);
+            opt.id=res['options'][i].id;
+            opt.innerHTML=res['options'][i].option;
+        }
+        }
+    },
+    failure:function(res){
+        Swal.fire('Something went wrong try again')
+    }
+})
+console.log(li);
+}
+
+
+
+
+function videoPoctoring() {
+    const video = document.getElementById('video');
+    console.log("Coming to script")
+    let v = "{% static 'models/'%}"
+    console.log(v)
+    Promise.all([
+        faceapi.nets.mtcnn.loadFromUri(v),
+		faceapi.nets.ssdMobilenetv1.loadFromUri(v)
+
+    ]).then(
+        startVideo
+    )
+
+function startVideo() {
+        console.log('coming to start video');
+        navigator.getUserMedia(
+            {
+                video: {
+					height:400,
+					width:600
+				}
+            },
+            stream => video.srcObject = stream,
+            err => console.log(err)
+        )
+    }
+    let notHere = 0, twoPerson = 0;
+    const canvas = document.createElement('canvas');
+    canvas.height = 400;
+    canvas.width = 600;
+    video.addEventListener('play', () => {
+        setInterval(async () => {
+            if (video.srcObject.active == false) {
+                window.close();
+            }
+			const d1 = await faceapi.detectAllFaces(video);
+            const d2 = await faceapi.detectAllFaces(video, new faceapi.MtcnnOptions());
+			console.log(d2.length)
+            if (d1.length == 0 && d2.length==0) {
+                notHere += 1;
+                if (notHere > 60) {
+                    notHere = 0;
+                    //Capture image now and send it to server
+					console.log("we detected that candidate is not present")
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    let dataUrl = canvas.toDataURL();
+                    $.ajax({
+                        url: "/regular-checks/",
+                        type: "POST",
+                        data: {
+                            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                            "type": "NotHere",
+                            "id": "{{quiz.id}}",
+                            "imgBase64": dataUrl
+                        },
+                    })
+
+                }
+            }
+            else if (d1.length >= 2 && d2.length>=2) {
+                twoPerson += 1;
+                if (twoPerson > 10) {
+                    twoPerson = 0;
+                    //Capture image now and send it to server
+					console.log("muliple faces detected");
+                    $.ajax({
+                        url: "/regular-checks/",
+                        type: "POST",
+                        data: {
+                            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                            "type": "TwoPerson",
+                            "id": "{{quiz.id}}",
+                            "imgBase64": dataUrl
+                        },
+                    })
+                }
+            }
+            else {
+                twoPerson = 0;
+                notHere = 0;
+            }
+        }, 2000)
+    })
+}
+
+</script>
